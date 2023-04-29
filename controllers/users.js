@@ -57,34 +57,22 @@ const updateProfile = (req, res) => {
     });
 };
 
-const updateAvatar = (req, res, next) => {
+const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(
+  return User.findByIdAndUpdate(
     req.user._id,
-    {
-      avatar,
-    },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .then((user) => {
-      if (!user) {
-        throw new NOT_FOUND('The user is not found');
-      }
-      return res.status(200).send({ data: user });
-    })
+    { avatar },
+    { new: true, runValidators: true },
+  ).orFail(() => new Error('NotFound'))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(
-          new BAD_REQUEST('The information you provided is not correct'),
-        );
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      } else if (err.message === 'NotFound') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
-      if (err.kind === 'ObjectId') {
-        return next(new BAD_REQUEST('Id is not correct'));
-      }
-      return next(err);
     });
 };
 
