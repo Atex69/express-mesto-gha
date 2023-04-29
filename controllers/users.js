@@ -40,6 +40,7 @@ const createUser = (req, res) => {
 };
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
+
   return User.findByIdAndUpdate(
     req.user._id,
     { name, about },
@@ -59,6 +60,7 @@ const updateProfile = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
+
   return User.findByIdAndUpdate(
     req.user._id,
     { avatar },
