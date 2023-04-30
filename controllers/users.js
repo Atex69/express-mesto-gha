@@ -12,7 +12,7 @@ const getUser = (req, res) => {
 
   return User.findById(userId)
     .orFail(() => new Error('NotFound'))
-    .then((user) => res.status(200).send(user))
+    .then((users) => res.send(users))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
@@ -28,10 +28,9 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   return User.create({ name, about, avatar })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err)
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
         res.status(SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
@@ -77,8 +76,6 @@ const updateAvatar = (req, res) => {
       }
     });
 };
-
-
 
 module.exports = {
   getUsers,
