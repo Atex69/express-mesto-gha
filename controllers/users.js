@@ -21,8 +21,8 @@ const getUser = (req, res, next) => {
     .then((users) => res.send(users))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return
         next(new BadRequest('Некорректные данные'));
+        return;
       }
       next(err);
     });
@@ -34,17 +34,15 @@ const createUser = (req, res, next) => {
   } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
-      User.create(
-        name, about, avatar, email, {password: hash},
-      );
+      User.create({name, about, avatar, email, password: hash });
     })
     .then((user) => res.status(201).send({
       name, about, avatar, email,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError' && err.code === 11000) {
-        next (new ConflictError('Пользователь с таким email уже существует'));
-      } else  {
+        next(new ConflictError('Пользователь с таким email уже существует'));
+      } else {
         next(err);
       }
     })
@@ -64,8 +62,8 @@ const updateProfile = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next (new BadRequest('Некорректные данные при обновлении профиля'));
-      } else  {
+        next(new BadRequest('Некорректные данные при обновлении профиля'));
+      } else {
         next(err);
       }
     })
@@ -85,8 +83,8 @@ const updateAvatar = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next (new BadRequest('Переданы некорректные данные при обновлении аватара'));
-      } else  {
+        next(new BadRequest('Переданы некорректные данные при обновлении аватара'));
+      } else {
         next(err);
       }
     })
@@ -101,10 +99,10 @@ const getCurrentUser = (req, res, next) => {
     .then((user) => res.status(200).send({ user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next (new BadRequest('Некорректные данные'));
+        next(new BadRequest('Некорректные данные'));
       } else if (err.message === 'NotFound') {
         throw new NotFound('Пользователь не найден');
-      } else  {
+      } else {
         next(err);
       }
     })
