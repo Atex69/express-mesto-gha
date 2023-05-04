@@ -14,10 +14,12 @@ const createCard = (req, res, next) => {
   const owner = req.user._id;
 
   return Cards.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequest('Некорректные данные при создании карточки');
+      } else {
+        next(err)
       }
     })
     .catch(next);
@@ -33,9 +35,11 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         Cards.findByIdAndRemove(cardId).then(() => res.status(200).send(card));
+
       } else {
         throw new ForbiddenError('Доступ запрещен');
       }
+
     })
     .catch(next);
 };
@@ -51,6 +55,7 @@ const likeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
+        return
         next(new BadRequest('Некорректные данные для постановки лайка'));
       }
       if (err.message === 'NotFound') {
@@ -71,6 +76,7 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
+        return
         next(new BadRequest('Некорректные данные для снятия лайка'));
       }
       if (err.message === 'NotFound') {
