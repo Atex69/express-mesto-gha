@@ -34,11 +34,10 @@ const createUser = (req, res, next) => {
   } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
-      User.create({name, about, avatar, email, password: hash });
+      User.create({
+        name, about, avatar, email, password: hash,
+      });
     })
-    .then((user) => res.status(201).send({
-      name, about, avatar, email,
-    }))
     .catch((err) => {
       if (err.name === 'ValidationError' && err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует'));
