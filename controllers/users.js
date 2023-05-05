@@ -28,9 +28,7 @@ const getUser = (req, res, next) => {
     });
 };
 
-
-
-const createUser =  (req, res, next) => {
+const createUser = (req, res, next) => {
   const {
     email,
     password,
@@ -80,7 +78,7 @@ const updateProfile = (req, res, next) => {
       } else {
         next(err);
       }
-    })
+    });
 };
 
 const updateAvatar = (req, res, next) => {
@@ -100,7 +98,7 @@ const updateAvatar = (req, res, next) => {
       } else {
         next(err);
       }
-    })
+    });
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -113,11 +111,11 @@ const getCurrentUser = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные'));
       } else if (err.message === 'NotFound') {
-        next (new NotFound('Пользователь не найден'));
+        next(new NotFound('Пользователь не найден'));
       } else {
         next(err);
       }
-    })
+    });
 };
 
 const login = (req, res, next) => {
