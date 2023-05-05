@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFound = require('../errors/NotFoundError');
-const BadRequest = require('../errors/BadRequest');
+const ConflictError = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -39,7 +39,7 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Пользователь с таким email уже существует'));
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else {
         next(err);
       }
