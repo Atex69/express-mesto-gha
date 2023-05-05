@@ -28,24 +28,39 @@ const getUser = (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => {
+
+
+const createUser =  (req, res, next) => {
   const {
-    name, about, avatar, email,
+    email,
+    password,
+    name,
+    about,
+    avatar,
   } = req.body;
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-      User.create({
-        name, about, avatar, email, password: hash,
-      });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' && err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+
+  try {
+    const hashedPassword = bcrypt.hash(password, 10);
+
+    const user = User.create({
+      email,
+      password: hashedPassword,
+      name,
+      about,
+      avatar,
+    });
+
+    res.status(200).send({ data: user });
+  } catch (err) {
+    if (err.code === 11000) {
+      next(new ConflictError('Пользователь с таким email уже существует'));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные при создании пользователя'));
       } else {
         next(err);
       }
-    })
-    .catch(next);
+    }
+  }
 };
 
 const updateProfile = (req, res, next) => {
@@ -66,7 +81,6 @@ const updateProfile = (req, res, next) => {
         next(err);
       }
     })
-    .catch(next);
 };
 
 const updateAvatar = (req, res, next) => {
@@ -87,7 +101,6 @@ const updateAvatar = (req, res, next) => {
         next(err);
       }
     })
-    .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -100,12 +113,11 @@ const getCurrentUser = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные'));
       } else if (err.message === 'NotFound') {
-        throw new NotFound('Пользователь не найден');
+        next (new NotFound('Пользователь не найден'));
       } else {
         next(err);
       }
     })
-    .catch(next);
 };
 
 const login = (req, res, next) => {
