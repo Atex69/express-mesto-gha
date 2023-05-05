@@ -64,17 +64,14 @@ const dislikeCard = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).orFail(() => {
-    throw new NotFound('Передан несуществующий _id карточки');
-  })
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Некорректные данные для снятия лайка'));
+  )
+    .then((cards) => {
+      if (!cards) {
+        throw new NotFound('По переданному _id карточка не найдена');
       }
-
-        next(err);
-    });
+      res.send({ data: cards });
+    })
+    .catch(next);
 };
 module.exports = {
   getCards,
